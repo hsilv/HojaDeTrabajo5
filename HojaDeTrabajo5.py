@@ -1,3 +1,5 @@
+#Herber Sebastián Silva Muñoz - 21764
+#Programa de entorno de Discrete Event Simulation, que simula la gestion de procesos e instrucciones entre RAM y CPU
 import simpy
 import random
 import statistics
@@ -73,17 +75,17 @@ def process(name, environment, ram, cpu, admitted_time, number_of_instructions, 
     array_tiempo.append(environment.now-tiempo_llegada)
 
 #Creación de atributos y entorno de simulacion
-random.seed(15401)
+random.seed(416)
 environment = simpy.Environment()  # Se crea el entorno de simulacion
-initial_ram = simpy.Container(environment, 30, init=30)  # Se crea el container de la ram
+initial_ram = simpy.Container(environment, 100, init=100)  # Se crea el container de la ram
 initial_cpu = simpy.Resource(environment, capacity=1)  # Se crea el procesador con capacidad establecida de instrucciones simultaneas
-initial_procesos = 200  # Cantidad de procesos a generar
+initial_procesos = 25 # Cantidad de procesos a generar
 procesos_cpu = 3 #Cantidad de procesos que realiza el CPU por ciclo
 tiempo_total = 0
 array_tiempo = [] #Array de tiempos de ejecución para desviacion estándar
 
 for i in range(initial_procesos):
-    llegada = random.expovariate(1/10) #Todos los procesos llegan al mismo tiempo
+    llegada = random.expovariate(1/1) #Todos los procesos llegan al mismo tiempo
     cantidad_instrucciones = random.randint(1, 10)  # Cantidad de instrucciones por proceso
     UsoRam = random.randint(1, 10)  # Cantidad de ram que requiere cada proceso
     environment.process(process('Process #%d' % i, environment, initial_ram, initial_cpu, llegada, cantidad_instrucciones, UsoRam, procesos_cpu))
