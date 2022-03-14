@@ -1,5 +1,6 @@
 import simpy
 import random
+import statistics
 
 def process(name, environment, ram, cpu, admitted_time, number_of_instructions, ram_req):
     #Tiempo de llegada del proceso
@@ -89,4 +90,4 @@ for i in range(initial_procesos):
 # correr la simulacion
 environment.run()
 print('Tiempo de ejecución promedio: %f ' % (tiempo_total / initial_procesos))
-print('Desviación estándar de tiempo de ejecución: %f' %())
+print('Desviación estándar de tiempo de ejecución: %f' %(statistics.pstdev(array_tiempo)))
