@@ -2,7 +2,7 @@ import simpy
 import random
 import statistics
 
-def process(name, environment, ram, cpu, admitted_time, number_of_instructions, ram_req):
+def process(name, environment, ram, cpu, admitted_time, number_of_instructions, ram_req, cpu_process):
     #Tiempo de llegada del proceso
     yield environment.timeout(admitted_time)
 
@@ -14,7 +14,7 @@ def process(name, environment, ram, cpu, admitted_time, number_of_instructions, 
 
     #Se imprime el estado del proceso que acaba de llegar
     print("---------------NEW Incomme---------------")
-    print('%s in queue ADMITTED in time: %d, RAM required: %d, Available: %d' % (name, environment.now, ram_req, ram.level))
+    print('%s in queue ADMITTED in time: %d, RAM required: %d, RAM available: %d' % (name, environment.now, ram_req, ram.level))
     print("-----------------------------------------")
 
     #Se solicita la memoria al contenedor de RAM o se queda en espera
@@ -46,7 +46,7 @@ def process(name, environment, ram, cpu, admitted_time, number_of_instructions, 
             yield req
 
             #Se ejecutan 3 instrucciones en un ciclo de reloj
-            number_of_instructions = number_of_instructions - 3
+            number_of_instructions = number_of_instructions - cpu_process
             yield environment.timeout(1)
 
             #Se imprime la ejecucion del proceso
@@ -65,7 +65,7 @@ def process(name, environment, ram, cpu, admitted_time, number_of_instructions, 
     #Imprime el estado de memoria junto con la RAM devuelta
     yield ram.put(ram_req)
     print("---------------TERMINATED----------------")
-    print('%s in queue TERMINATED in total time: %d, RAM returned: %d, Available: %d' % (name, (environment.now-tiempo_llegada), ram_req, ram.level))
+    print('%s in queue TERMINATED in total time: %d, RAM returned: %d, RAM available: %d' % (name, (environment.now-tiempo_llegada), ram_req, ram.level))
     print("-----------------------------------------")
     
     global tiempo_total
@@ -74,18 +74,19 @@ def process(name, environment, ram, cpu, admitted_time, number_of_instructions, 
 
 #Creación de atributos y entorno de simulacion
 random.seed(15401)
-environment = simpy.Environment()  # crear ambiente de simulacion
-initial_ram = simpy.Container(environment, 30, init=30)  # crea el container de la ram
-initial_cpu = simpy.Resource(environment, capacity=1)  # se crea el procesador con capacidad establecida
-initial_procesos = 200  # cantidad de procesos a generar
+environment = simpy.Environment()  # Se crea el entorno de simulacion
+initial_ram = simpy.Container(environment, 30, init=30)  # Se crea el container de la ram
+initial_cpu = simpy.Resource(environment, capacity=1)  # Se crea el procesador con capacidad establecida de instrucciones simultaneas
+initial_procesos = 200  # Cantidad de procesos a generar
+procesos_cpu = 3 #Cantidad de procesos que realiza el CPU por ciclo
 tiempo_total = 0
-array_tiempo = []
+array_tiempo = [] #Array de tiempos de ejecución para desviacion estándar
 
 for i in range(initial_procesos):
     llegada = random.expovariate(1/10) #Todos los procesos llegan al mismo tiempo
-    cantidad_instrucciones = random.randint(1, 10)  # cantidad de operaciones por proceso
-    UsoRam = random.randint(1, 10)  # cantidad de ram que requiere cada proceso
-    environment.process(process('Process #%d' % i, environment, initial_ram, initial_cpu, llegada, cantidad_instrucciones, UsoRam))
+    cantidad_instrucciones = random.randint(1, 10)  # Cantidad de instrucciones por proceso
+    UsoRam = random.randint(1, 10)  # Cantidad de ram que requiere cada proceso
+    environment.process(process('Process #%d' % i, environment, initial_ram, initial_cpu, llegada, cantidad_instrucciones, UsoRam, procesos_cpu))
 
 # correr la simulacion
 environment.run()
